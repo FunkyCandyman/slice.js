@@ -48,6 +48,7 @@ self.UploadWorker = {
 
     initialize: function (data) {
         //TODO: implement
+        echo(data);
     },
 
     start: function (data) {
