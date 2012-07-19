@@ -1,0 +1,1 @@
+../../../../js/upload_worker.js
