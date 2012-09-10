@@ -41,10 +41,6 @@ self.UploadWorker = {
 
     },
 
-    settings: {
-        }
-    },
-
     initialize: function (data) {
         //TODO: implement
         echo(data);
