@@ -22,11 +22,11 @@ self.addEventListener('message', function (evt) {
     switch(data.command) {
         case 'initialize': self.UploadWorker.initialize(data);
             break;
-        case 'start': self.UploadWorker.start(data);
+        case 'start': self.UploadWorker.start();
             break;
-        case 'pause': self.UploadWorker.pause(data);
+        case 'pause': self.UploadWorker.pause();
             break;
-        case 'stop': self.UploadWorker.stop(data);
+        case 'stop': self.UploadWorker.stop();
             break;
         default: self.echo(data);
             break;
@@ -41,9 +41,8 @@ self.UploadWorker = {
 
     },
 
-    queues: { //TODO: redo?
-        encrypt: [],
-        upload: []
+    settings: {
+        }
     },
 
     initialize: function (data) {
