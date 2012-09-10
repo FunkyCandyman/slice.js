@@ -46,15 +46,15 @@ self.UploadWorker = {
         echo(data);
     },
 
-    start: function (data) {
+    start: function () {
         //TODO: implement
     },
 
-    pause: function (data) {
+    pause: function () {
         //TODO: implement
     },
 
-    stop: function (data) {
+    stop: function () {
         //TODO: implement
     }
 };
