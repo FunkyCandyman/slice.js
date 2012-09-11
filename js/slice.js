@@ -21,7 +21,7 @@ var SliceJS = {
     },
 
     Downloader: function () {
-        console.log('created new downloader object');
+        console.log('TODO: create new downloader object');
     }
 };
 
