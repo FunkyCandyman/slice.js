@@ -58,6 +58,8 @@ self.UploadWorker = {
 
         // Call method to calculate all the chunks properties
         this.calculateChunks();
+
+        importScripts('sjcl.js');
     },
 
     start: function () {
@@ -82,7 +84,7 @@ self.UploadWorker.calculateChunks = function() {
         var start = (i - 1) * chunk_size;
         var end = (i * chunk_size) - 1;
 
-        var new_chunk = new this.Chunk(this.file, start, end);
+        var new_chunk = new this.Chunk(this.file, i - 1, start, end);
 
         this.chunks.push(new_chunk);
     }
@@ -90,7 +92,7 @@ self.UploadWorker.calculateChunks = function() {
     // check whether the files size is not a multiple of the chunk size and calculate
     //  a chunk for the rest in the case, there is some leftover  
     if(chunk_count * chunk_size < this.file.size) {
-        var new_chunk = new this.Chunk(this.file,
+        var new_chunk = new this.Chunk(this.file, this.chunks.length,
                 (chunk_count * chunk_size),
                 this.file.size - 1);
 
@@ -98,11 +100,25 @@ self.UploadWorker.calculateChunks = function() {
     }
 };
 
-self.UploadWorker.Chunk = function(file, start, end) {
+// Represents a files' chunk that gets encrypted and uploaded
+self.UploadWorker.Chunk = function(file, id, start, end) {
     this.file = file;
+    this.file_id = id;
 
     this.startIndex = start;
     this.endIndex = end;
+
+    this.encrypted_data = null;
+};
+
+// Encrypt the content of the chunk
+self.UploadWorker.Chunk.prototype.encrypt = function() {
+    // TODO: implement
+};
+
+// Upload the encrypted content of the chunk
+self.UploadWorker.Chunk.prototype.upload = function() {
+    // TODO: implement
 };
 
 
