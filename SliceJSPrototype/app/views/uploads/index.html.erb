@@ -1,7 +1,7 @@
 <script type="text/javascript">
     window.addEventListener('load', function () {
     // initialize upload handler
-        document.forms[0].addEventListener('click', handleOnSubmit, false);
+        document.forms[0].addEventListener('submit', handleOnSubmit, false);
     }, false);
 
     var uploader;
@@ -19,6 +19,7 @@
     }
 
 </script>
+<script type="text/javascript" src="/assets/crypto-js.js"></script>
 
 <h1>Uploads#index</h1>
 <p>Find me in app/views/uploads/index.html.erb</p>

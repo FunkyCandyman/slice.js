@@ -25,55 +25,58 @@ var SliceJS = {
     }
 };
 
-// the webworker attribute for uploading
-SliceJS.Uploader.prototype.worker = null;
+SliceJS.Uploader.prototype = {
+    worker: null,
 
-// execute the given command on webworker side
-SliceJS.Uploader.prototype.executeCommand = function (cmd, msg) {
-    this.worker.postMessage({
-        command: cmd,
-        message: msg
-    });
-};
+    executeCommand: function (cmd, msg) {
+        this.worker.postMessage({
+            command: cmd,
+            message: msg
+        });
+    },
 
-SliceJS.Uploader.prototype.start = function () {
-    //TODO implement
-};
+    start: function() {
+        //TODO implement
+        this.executeCommand('start', null);
+    },
 
-SliceJS.Uploader.prototype.stop = function () {
-    //TODO implement
-};
+    pause: function() {
+        //TODO implement
+    },
 
-SliceJS.Uploader.prototype.pause = function () {
-    //TODO implement
-};
+    resume: function() {
+        //TODO implement
+    },
 
-SliceJS.Uploader.prototype.resume = function () {
-    //TODO implement
-}
+    cancel: function() {
+        //TODO implement
+    },
 
-// function for handling worker messages
-SliceJS.Uploader.prototype.messageHandler = function (evt) {
-    var data = evt.data;
+    messageHandler: function (evt) {
+        var data = evt.data;
 
-    switch(data.command) {
-        case 'progress': this.progress(data.message);
-            break;
-        default: this.messageHandlers.echo(data.message);
-            break;
+        switch(data.command) {
+            case 'progress': this.progress(data.message);
+                break;
+            default: this.messageHandlers.echo(data.message);
+               break;
+        }
+
+        evt.stopPropagation();
+    },
+
+    messageHandlers: {
+        echo: function(msg) {
+            console.log(msg);
+        }
     }
-
-    evt.stopPropagation();
 };
 
-// here all handlers for the processed events are to be found
-SliceJS.Uploader.prototype.messageHandlers = { };
-
-// just logs the events message property to the console
-SliceJS.Uploader.prototype.messageHandlers.echo = function (msg) {
-    console.log(msg);
-};
-
+// SliceJS.Uploader.prototype.messageHandlers = {
+//     echo: function (msg) {
+//         console.log(msg);
+//     }
+// };
 
 /*
 SliceJS.Uploader.prototype.fetchTicket =  function () {
