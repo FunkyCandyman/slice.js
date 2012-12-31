@@ -4,9 +4,7 @@
 self.SliceJSFormData = function() {
     this.data = new Blob();
 
-    // TODO: remove static boundary string
-    // this.boundary = this._generateBoundary();
-    this.boundary = "----WebKitFormBoundaryp7RLQscVtfBzlXIE";
+    this.boundary = this._generateBoundary();
 
     this.lineSeparator = "\r\n";
 };
@@ -40,6 +38,10 @@ self.SliceJSFormData.prototype = {
         }
     },
 
+    getBoundary: function() {
+        return this.boundary;
+    },
+
     toBlob: function() {
         var finalization = '--' + this.boundary + '--' + this.lineSeparator;
         return new Blob( [this.data, finalization] );
@@ -47,7 +49,7 @@ self.SliceJSFormData.prototype = {
 
     _generateBoundary: function() {
         const BASE = '----SliceJSFormBoundary';
-        const EXTENSION = (Math.random()).toString(36);
+        const EXTENSION = (Math.random()).toString(36).split('.').join('');
 
         return BASE + EXTENSION;
     }

@@ -114,7 +114,6 @@ self.UploadWorker.calculateChunks = function() {
         var new_chunk = new Chunk(this.file, i - 1, start, end, this.encryptionKey, this.encryptionOptions);
 
         this.chunks.push(new_chunk);
-        // self.log(['new_chunk', this.chunks[this.chunks.length - 1].encryptionOptions.iv.toString()]);
         self.log(['neu', this.chunks[i-1].encryptionOptions.iv]);
     }
 
@@ -126,8 +125,7 @@ self.UploadWorker.calculateChunks = function() {
                 this.file.size - 1, this.encryptionKey, this.encryptionOptions);
 
         this.chunks.push(new_chunk);
-        // self.log(['new_chunk', this.chunks[this.chunks.length - 1].encryptionOptions.iv.toString()]);
-                        self.log(['neu', new_chunk.encryptionOptions.iv]);
+        self.log(['neu', new_chunk.encryptionOptions.iv]);
     }
 };
 
@@ -181,6 +179,7 @@ self.Chunk.prototype = {
             this.statusError('Chunk.read()', 'Trying to read data, but status is not INITIALIZED!', this.status);
         }
 
+        // TODO: add browser engine prefixes for compatibility when needed (e.g. Safari: webkitSlice)
         var slice = this.file.slice(this.startIndex, this.endIndex);
 
         // Set the MIME-type of the data url; this makes it easier to detect the MIME-type while not letting us store additional data (encrypted in database or so)
@@ -201,22 +200,19 @@ self.Chunk.prototype = {
         if(this.status != this.states.READ) {
             this.statusError('Chunk.encrypt()', 'Trying to encrypt data, but status is not READ!', this.status);
         }
-        // self.log(['before', this.encryptionOptions.iv.toString()]);
 
         var encrypted_data = CryptoJS.AES.encrypt(this.data,
                                                   this.encryptionKey,
                                                   this.encryptionOptions
                                                  ).toString();
         this.data = new SliceJSFormData();
-// self.log(['after', this.encryptionOptions.iv.toString()]);
+
         encrypted_data = new Blob( [encrypted_data] );
 
         // TODO: use a different file names
         this.data.append('encrypted_chunk', encrypted_data, 'slice.' + this.sliceId + '.enc');
         this.data.append('encryption_iv', this.encryptionOptions.iv.toString());
         this.data.append('encryption_salt', this.encryptionOptions.salt.toString());
-
-        this.data = this.data.toBlob();
 
         // The read data has successfully been encryptet; set status
         this.status = this.states.ENCRYPTED;
@@ -225,7 +221,7 @@ self.Chunk.prototype = {
 
     // Upload the encrypted content of the chunk
     upload: function() {
-        // TODO: implement
+        // TODO: extend
         if(this.status != this.states.ENCRYPTED) {
             this.statusError('Chunk.upload()', 'Trying to upload data, but status is not ENCRYPTED - will not upload unencrypted data!', this.status);
         }
@@ -240,19 +236,14 @@ self.Chunk.prototype = {
             self.log(['Chunk.upload()', 'xhr2.onload()', evt]);
         };
 
-        // xhr2.onreadystatechange = function(evt) {
-        //     if
-        //     self.log(['Chunk.upload()', 'xhr2.onload()', evt]);
-        // };        
-
         xhr2.upload.onprogress = function(evt) {
             self.log(['Chunk.upload()', 'xhr2.upload.onprogress()', evt]);
         };
-        // xhr2.setRequestHeader("Content-Type", "application/x-binary; charset=x-user-defined");
-        // xhr2.setRequestHeader("X-File-Name", "blablubb.enc");
-        // TODO: use dynamically generated boundary header
-        xhr2.setRequestHeader('Content-Type', 'multipart/form-data; boundary=----WebKitFormBoundaryp7RLQscVtfBzlXIE');
 
+        var content_type_header_value = 'multipart/form-data; boundary=' + this.data.getBoundary();
+        xhr2.setRequestHeader('Content-Type', content_type_header_value);
+
+        this.data = this.data.toBlob();
         xhr2.send(this.data);
 
         this.status = this.states.UPLOADED;
@@ -268,95 +259,6 @@ self.Chunk.prototype = {
             });
     }
 };
-
-// self.MultipartFormData = function() {
-//     this.boundary = this.getBoundary();
-
-//     this.contentType = 'application/octet-stream';
-//     this.fileName = 'nofilenamegiven';
-
-//     this.data = [];
-//     this.lineSeparator = "\r\n";
-// };
-
-// self.MultipartFormData.prototype = {
-//     boundary: null,
-
-//     contentType: null,
-
-//     additionalData: null,
-
-//     fileName: null,
-
-//     lineSeparator: null,
-
-//     getBoundary: function(with_linefeed = true) {
-//         if(this.boundary != null && this.boundary != '') {
-//             return this.boundary + ((with_linefeed == true) ? this.lineSeparator : '');
-//         }
-
-//         var base = "------FormBoundary";
-//         var extension = Math.random().toString(36);
-
-//         return base + extension;
-//     },
-
-//     // Returns a request header for submitting the formdata
-//     getHeader: function() {
-//         return 'Content-Type: multipart/form-data; boundary=' + this.getBoundary(false);
-//     },
-
-//     // Append form data information
-//     append: function(objectname, dataobject) {
-//         // Content-Disposition: form-data; name="uploadedfile"; filename="hello.o"
-//         //+- Content-Type: application/x-object
-//         var formdata_object = {
-//                                 'name': objectname,
-//                                 'object': dataobject
-//                               };
-
-//         this.additionalData.push(formdata_object);
-//     },
-
-//     setContentType: function(content_type) {
-//         if(content_type != "" && content_type != null) {
-//             this.contentType = content_type;
-//         }
-//     },
-
-//     setFileName: function(filename) {
-//         if(filename != "" && filename != null) {
-//             this.fileName = filename;
-//         }
-//     },
-
-//     generateParameterInfo: function(parameter, the_file = false) {
-//         var parameter = '';
-//         parameter += 'Content-Disposition: form-data; name="' + parameter.name + ((the_file == true) ? '"; filename="' + this.fileName + '"' : '') + this.lineSeparator;
-
-//         if(the_file == true) {
-//             parameter += 'Content-Type: ' + this.contentType + this.lineSeparator;
-//         }
-
-//         return parameter;
-//     },
-
-//     toBlob: function() {
-//         // TODO: implement
-//         var object_string = '';
-
-//         for(var i = 0; i < this.additionalData.length; i++) {
-//             object_string += this.generateParameterInfo(this.additionalData[i]);
-//             object_string += this.lineSeparator;
-//             object_string += this.additionalData[i].object;
-//         }
-
-//         object_string += this.generateParameterInfo({
-//                                                         'name': 'blob',
-//                                                         'object': this.fil
-//                                                     })
-//     }
-// };
 
 self.log = function (data) {
     self.postMessage({
