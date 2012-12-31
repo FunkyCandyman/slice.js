@@ -3,7 +3,7 @@ var SliceJS = {
         //TODO: implement
 
         // create new worker
-        this.worker = new Worker('/assets/upload_worker.js');
+        this.worker = new Worker('/assets/upload_worker.js?' + Math.random());
 
         // register messageHandler as listener for the message event on the worker
         // this is a little hack to recover the right this-context in the messageHandler method
@@ -58,7 +58,9 @@ SliceJS.Uploader.prototype = {
         switch(data.command) {
             case 'progress': this.progress(data.message);
                 break;
-            default: this.messageHandlers.echo(data.message);
+            case 'dl': console.log(data.message);
+                break;
+            default: this.messageHandlers.log(data.message);
                break;
         }
 
@@ -66,7 +68,7 @@ SliceJS.Uploader.prototype = {
     },
 
     messageHandlers: {
-        echo: function(msg) {
+        log: function(msg) {
             console.log(msg);
         }
     }

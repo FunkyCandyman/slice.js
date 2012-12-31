@@ -1,6 +1,6 @@
 SliceJSPrototype::Application.routes.draw do
   get "uploads/index"
-
+  post "uploads/chunk"
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
