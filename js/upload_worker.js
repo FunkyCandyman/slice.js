@@ -44,14 +44,17 @@ self.UploadWorker = {
         chunk_size: 1024 * 1024 * 5
     },
 
-    // The file we want to upload
-    file: null,
-
     // Here all file chunk objects are stored
     chunks: [],
 
     // This is the container object, where the encryption data is stored
     encryptionOptions: null,
+
+    // The file we want to upload
+    file: null,
+
+    // 
+    uploadTicket: null,
 
     ///
     // Methods
@@ -59,14 +62,16 @@ self.UploadWorker = {
     initialize: function (data) {
         //TODO: implement
         // import crypto library
-        importScripts('/assets/aes.js');
+        importScripts('/assets/crypto-js/aes.js');
         importScripts('/assets/FormData.js');
 
         // Assign variable values
         this.file = data.file;
 
-        // Use testdata for encryption
+        // TODO: remove testdata and implement routines to get this data from anywhere else
+        // Use testdata for encryption and upload
         this.encryptionKey = CryptoJS.enc.Utf8.parse("MyPrettyran|)omPasswörd 123");
+        this.uploadTicket = 'q8PiEId8FNsL';
 
         // TODO: Add some facilities for setting other options too
         this.encryptionOptions = {
@@ -207,10 +212,14 @@ self.Chunk.prototype = {
                                                  ).toString();
         this.data = new SliceJSFormData();
 
+self.log(['Chunk.encrypt()', 'md5-Hash', CryptoJS.MD5(encrypted_data).toString()]);
+
         encrypted_data = new Blob( [encrypted_data] );
 
-        // TODO: use a different file names
-        this.data.append('encrypted_chunk', encrypted_data, 'slice.' + this.sliceId + '.enc');
+        // Construct form data object for upload
+        // TODO: eventually move this functionality to a separate method
+        this.data.append('upload_ticket', self.UploadWorker.uploadTicket); // TODO: remove quick&dirty hack to get uploadTicket
+        this.data.append('encrypted_chunk', encrypted_data, 'slice.' + this.sliceId + '.enc'); // TODO: use a different file names
         this.data.append('encryption_iv', this.encryptionOptions.iv.toString());
         this.data.append('encryption_salt', this.encryptionOptions.salt.toString());
 
@@ -230,7 +239,7 @@ self.Chunk.prototype = {
 
         // TODO: use dynamically generated URL for uploading the chunk (use URL pattern)
         // TODO: add username (TicketID) + password for authentication
-        xhr2.open('POST', '/uploads/chunk', true);
+        xhr2.open('POST', '/upload_chunk.php', true);
 
         xhr2.onload = function(evt) {
             self.log(['Chunk.upload()', 'xhr2.onload()', evt]);

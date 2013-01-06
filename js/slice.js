@@ -3,7 +3,7 @@ var SliceJS = {
         //TODO: implement
 
         // create new worker
-        this.worker = new Worker('/assets/upload_worker.js?' + Math.random());
+        this.worker = new Worker('assets/upload_worker.js?' + Math.random());
 
         // register messageHandler as listener for the message event on the worker
         // this is a little hack to recover the right this-context in the messageHandler method
